@@ -28,6 +28,9 @@ def token_validation(func):
         except jwt.InvalidTokenError:
             return jsonify({'message': 'Invalid Token'}), 401
 
+        username = payload.get('username')
+        request.user = username
+
         return func(*args, **kwargs)
 
     return wrapper
@@ -55,7 +58,9 @@ def get_risks():
     for risk in db_risks.find():
         risks.append({
             '_id': str(ObjectId(risk['_id'])),
-            'name': risk['name']
+            'short_id': str(ObjectId(risk['_id']))[-6:],
+            'name': risk['name'],
+            'user': risk['user']
         })
     return jsonify(risks)
 
@@ -72,7 +77,8 @@ def get_risk(id):
 @token_validation
 def create_risk():
     risk = db_risks.insert_one({
-        'name': request.json['name']
+        'name': request.json['name'],
+        'user': request.user
     })
     return jsonify(str(ObjectId(risk.inserted_id)))
 

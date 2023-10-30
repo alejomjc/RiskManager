@@ -1,7 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import Modal from './Modal';
+import React, {useState, useEffect, useMemo} from 'react';
 import {getRisks, getRisk, deleteRisk} from './CRUD';
 import ModalRisk from "./Modal";
+
+import { MantineReactTable, useMantineReactTable } from 'mantine-react-table';
+import { ActionIcon, Box } from '@mantine/core';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
+
+const API = process.env.REACT_APP_API;
+// const TOKEN = process.env.TOKEN_AUTH_JWT
+const TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzdWFyaW8ifQ.PuRbZekcfxsKPo92zbIXFQD04N8HHk6ZDoRGvTxjOEs'
+
 
 
 
@@ -54,50 +62,66 @@ export const Risks = () => {
         setIdRisk('');
     };
 
+    const columns = useMemo(
+      () => [
+        {
+          header: 'ID',
+          accessorKey: 'short_id',
+        },
+        {
+          header: 'Name',
+          accessorKey: 'name',
+        },
+        {
+          header: 'User',
+          accessorKey: 'user',
+        },
+      ],
+      [],
+    );
+
+    const table = useMantineReactTable({
+        columns,
+        data: risks,
+        enableColumnOrdering: true,
+        enableGlobalFilter: true,
+        enableRowActions: true,
+        renderRowActions: ({ row }) => (
+          <Box sx={{ display: 'flex', flexWrap: 'nowrap', gap: '8px' }}>
+            <ActionIcon
+              color="gray"
+              data-bs-toggle="modal"
+              data-bs-target="#riskModal"
+              onClick={() => {
+                editLocalRisk(row.original._id);
+              }}
+            >
+              <IconEdit />
+            </ActionIcon>
+            <ActionIcon
+              color="red"
+              onClick={() => {
+                deleteLocalRisk(row.original._id)
+              }}
+            >
+              <IconTrash />
+            </ActionIcon>
+          </Box>
+        ),
+    });
+
     useEffect(() => {
         getLocalRisks();
     }, []);
 
     return (
         <>
-            <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#riskModal" onClick={resetEditRisk}>
+            <button type="button" className="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#riskModal" onClick={resetEditRisk}>
               Create Risk
             </button>
-            <table id="example" className="table table-striped" style={{width: "100%"}}>
-                <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Position</th>
-                    <th>Office</th>
-                    <th>Age</th>
-                    <th>Start date</th>
-                    <th>Salary</th>
-                    <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                    {risks.map(risk =>(
-                        <tr key={risk._id}>
-                            <td>{risk.name}</td>
-                            <td>Marketing Designer</td>
-                            <td>London</td>
-                            <td>66</td>
-                            <td>2012-11-27</td>
-                            <td>$198,500</td>
-                            <td className="p-0">
-                                <button type="button" className="btn btn-link p-0 m-1 text-decoration-none" data-bs-toggle="modal" data-bs-target="#riskModal" onClick={() => editLocalRisk(risk._id)}>
-                                    <b>Edit</b>
-                                </button>
-                                <br></br>
-                                <button type="button" className="btn btn-link p-0 m-1 text-decoration-none" onClick={() => deleteLocalRisk(risk._id)}>
-                                    <b>Delete</b>
-                                </button>
-                            </td>
-                        </tr>
-                    ))}
-
-                </tbody>
-            </table>
+            <div className="mb-3">
+               <MantineReactTable table={table}/>
+            </div>
             <ModalRisk getLocalRisks={getLocalRisks} formDataRisk={formDataRisk} setFormDataRisk={setFormDataRisk} clearFormDataRisk={clearFormDataRisk} idRisk={idRisk} editingRisk={editingRisk}/>
         </>
     )
