@@ -1,3 +1,4 @@
+import bcrypt
 import jwt
 from bson import json_util
 from flask import Flask, request, jsonify, Response
@@ -37,7 +38,9 @@ def get_token():
     username = request.json.get('username')
     password = request.json.get('password')
 
-    if username == 'usuario' and password == 'contraseña':
+    user = db_users.find_one({'username': username})
+
+    if user and bcrypt.checkpw(password.encode('utf-8'), user['password']):
         token = jwt.encode({'username': username}, SECRET_KEY, algorithm='HS256')
         return jsonify({'token': token})
     else:
@@ -101,7 +104,7 @@ def get_users():
         users.append({
             '_id': str(ObjectId(user['_id'])),
             'username': user['username'],
-            'password': user['password']
+            'password': '********'
         })
     return jsonify(users)
 
@@ -117,9 +120,14 @@ def get_user(id):
 @app.route('/user/create', methods=['POST'], endpoint='create_user')
 @token_validation
 def create_user():
+    username = request.json['username']
+    raw_password = request.json['password']
+
+    hashed_password = bcrypt.hashpw(raw_password.encode('utf-8'), bcrypt.gensalt())
+
     user = db_users.insert_one({
-        'username': request.json['username'],
-        'password': request.json['password']
+        'username': username,
+        'password': hashed_password
     })
     return jsonify(str(ObjectId(user.inserted_id)))
 
@@ -127,9 +135,14 @@ def create_user():
 @app.route('/user/<id>', methods=['PUT'], endpoint='update_user')
 @token_validation
 def update_user(id):
+    username = request.json['username']
+    raw_password = request.json['password']
+
+    hashed_password = bcrypt.hashpw(raw_password.encode('utf-8'), bcrypt.gensalt())
+
     db_users.update_one({'_id': ObjectId(id)}, {'$set': {
-        'username': request.json['username'],
-        'password': request.json['password']
+        'username': username,
+        'password': hashed_password
     }})
     return jsonify({'message': 'User Updated successfully'})
 

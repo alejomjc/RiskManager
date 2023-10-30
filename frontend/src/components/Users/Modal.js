@@ -23,7 +23,7 @@ const ModalUser = ({ getLocalUsers ,formDataUser , setFormDataUser, clearFormDat
         body: JSON.stringify(formDataUser)
       })
     } else {
-      const res = await fetch(`${API}/riesgo/${idUser}`, {
+      const res = await fetch(`${API}/user/${idUser}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -56,11 +56,11 @@ const ModalUser = ({ getLocalUsers ,formDataUser , setFormDataUser, clearFormDat
                     <label htmlFor="exampleFormControlInput1" className="form-label">
                       Username
                     </label>
-                    <input type="text" className="form-control mb-2" name="username" value={formDataUser.username || ''} onChange={handleInputChange} placeholder="Set a username"/>
+                    <input type="text" className="form-control mb-2" name="username" required value={formDataUser.username || ''} onChange={handleInputChange} placeholder="Set a username"/>
                     <label htmlFor="exampleFormControlInput2" className="form-label">
                       Password
                     </label>
-                    <input type="password" className="form-control mb-2" name="password" value={formDataUser.password || ''} onChange={handleInputChange} placeholder="Set the password"/>
+                    <input type="password" className="form-control mb-2" name="password" required onChange={handleInputChange} placeholder="Set the password"/>
                   </div>
                 </div>
                 <div className="modal-footer">

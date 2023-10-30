@@ -49,6 +49,7 @@ export const Risks = () => {
       }
 
     const resetEditRisk = () => {
+        clearFormDataRisk();
         setEditingRisk(false);
         setIdRisk('');
     };
