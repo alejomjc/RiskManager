@@ -5,7 +5,10 @@ export const Navbar = () => (
     <nav className="navbar navbar-expand-lg bg-body-tertiary">
         <div className="container-fluid">
             <Link className="navbar-brand" to="/">
-                Riesgos
+                Risks
+            </Link>
+            <Link className="navbar-brand" to="/users">
+                Users
             </Link>
             <button
                 className="navbar-toggler"

@@ -1,7 +1,8 @@
 import React from 'react'
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import {About} from "./components/About";
-import {Riesgos} from "./components/Riesgos";
+import {Risks} from "./components/Risks/Risks";
+import {Users} from "./components/Users/Users";
 import {Navbar} from "./components/Navbar";
 
 function App() {
@@ -11,7 +12,8 @@ function App() {
           <div className="container p-2">
               <Routes>
                 <Route path="/about" element={<About />} />
-                <Route path="/" element={<Riesgos />} />
+                <Route path="/users" element={<Users />} />
+                <Route path="/" element={<Risks />} />
               </Routes>
           </div>
       </Router>

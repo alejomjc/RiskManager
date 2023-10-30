@@ -1,54 +1,146 @@
+import jwt
 from bson import json_util
 from flask import Flask, request, jsonify, Response
 from flask_pymongo import PyMongo, ObjectId
 from flask_cors import CORS
 
 app = Flask(__name__)
-app.config['MONGO_URI'] = 'mongodb://localhost:27017/gestionriesgosdb'
+app.config['MONGO_URI'] = 'mongodb://localhost:27017/risksmanagerdb'
+SECRET_KEY = '1bb*3%%a13*a1%322a2$2b2$b2*b$c'
 mongo = PyMongo(app)
 
 CORS(app)
-db = mongo.db.riesgos
+db_risks = mongo.db.risks
+db_users = mongo.db.users
 
 
-@app.route('/riesgos', methods=['GET'])
-def get_riesgos():
-    riesgos = []
-    for riesgo in db.find():
-        riesgos.append({
-            '_id': str(ObjectId(riesgo['_id'])),
-            'name': riesgo['name']
+def token_validation(func):
+    def wrapper(*args, **kwargs):
+        token = request.headers.get('Authorization')
+        if not token:
+            return jsonify({'message': 'Token Lost'}), 401
+
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        except jwt.ExpiredSignatureError:
+            return jsonify({'message': 'Expired Token'}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({'message': 'Invalid Token'}), 401
+
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+@app.route('/get-token', methods=['POST'])
+def get_token():
+    username = request.json.get('username')
+    password = request.json.get('password')
+
+    if username == 'usuario' and password == 'contraseña':
+        token = jwt.encode({'username': username}, SECRET_KEY, algorithm='HS256')
+        return jsonify({'token': token})
+    else:
+        return jsonify({'message': 'Wrong username and password'}), 401
+
+
+# Start Risks views
+@app.route('/risks', methods=['GET'], endpoint='get_risks')
+@token_validation
+def get_risks():
+    risks = []
+    for risk in db_risks.find():
+        risks.append({
+            '_id': str(ObjectId(risk['_id'])),
+            'name': risk['name']
         })
-    return jsonify(riesgos)
+    return jsonify(risks)
 
 
-@app.route('/riesgo/<id>', methods=['GET'])
-def get_riesgo(id):
-    riesgo = db.find_one({'_id': ObjectId(id)})
-    response = json_util.dumps(riesgo)
+@app.route('/risk/<id>', methods=['GET'], endpoint='get_risk')
+@token_validation
+def get_risk(id):
+    risk = db_risks.find_one({'_id': ObjectId(id)})
+    response = json_util.dumps(risk)
     return Response(response, mimetype="application/json")
 
 
-@app.route('/riesgo/create', methods=['POST'])
-def create_riesgo():
-    riesgo = db.insert_one({
+@app.route('/risk/create', methods=['POST'], endpoint='create_risk')
+@token_validation
+def create_risk():
+    risk = db_risks.insert_one({
         'name': request.json['name']
     })
-    return jsonify(str(ObjectId(riesgo.inserted_id)))
+    return jsonify(str(ObjectId(risk.inserted_id)))
 
 
-@app.route('/riesgo/<id>', methods=['PUT'])
-def update_riesgo(id):
-    db.update_one({'_id': ObjectId(id)}, {'$set': {
+@app.route('/risk/<id>', methods=['PUT'], endpoint='update_risk')
+@token_validation
+def update_risk(id):
+    db_risks.update_one({'_id': ObjectId(id)}, {'$set': {
         'name': request.json['name']
     }})
-    return jsonify({'message': 'Usuario Actualizado'})
+    return jsonify({'message': 'Risk updated sucessfully'})
 
 
-@app.route('/riesgo/<id>', methods=['DELETE'])
-def delete_riesgo(id):
-    db.delete_one({'_id': ObjectId(id)})
-    return jsonify({'message': 'Riesgo eliminado'})
+@app.route('/risk/<id>', methods=['DELETE'], endpoint='delete_risk')
+@token_validation
+def delete_risk(id):
+    db_risks.delete_one({'_id': ObjectId(id)})
+    return jsonify({'message': 'Risk deleted successfully'})
+
+# End Risks views
+
+
+# Start Users views
+@app.route('/users', methods=['GET'], endpoint='get_users')
+@token_validation
+def get_users():
+    users = []
+    for user in db_users.find():
+        users.append({
+            '_id': str(ObjectId(user['_id'])),
+            'username': user['username'],
+            'password': user['password']
+        })
+    return jsonify(users)
+
+
+@app.route('/user/<id>', methods=['GET'], endpoint='get_user')
+@token_validation
+def get_user(id):
+    user = db_users.find_one({'_id': ObjectId(id)})
+    response = json_util.dumps(user)
+    return Response(response, mimetype="application/json")
+
+
+@app.route('/user/create', methods=['POST'], endpoint='create_user')
+@token_validation
+def create_user():
+    user = db_users.insert_one({
+        'username': request.json['username'],
+        'password': request.json['password']
+    })
+    return jsonify(str(ObjectId(user.inserted_id)))
+
+
+@app.route('/user/<id>', methods=['PUT'], endpoint='update_user')
+@token_validation
+def update_user(id):
+    db_users.update_one({'_id': ObjectId(id)}, {'$set': {
+        'username': request.json['username'],
+        'password': request.json['password']
+    }})
+    return jsonify({'message': 'User Updated successfully'})
+
+
+@app.route('/user/<id>', methods=['DELETE'], endpoint='delete_user')
+@token_validation
+def delete_user(id):
+    db_users.delete_one({'_id': ObjectId(id)})
+    return jsonify({'message': 'User deleted'})
+
+# End Users views
 
 
 if __name__ == '__main__':
