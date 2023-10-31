@@ -53,10 +53,34 @@ const ModalRisk = ({ getLocalRisks ,formDataRisk , setFormDataRisk, clearFormDat
                 </div>
                 <div className="modal-body">
                   <div className="mb-3">
-                    <label htmlFor="exampleFormControlInput1" className="form-label">
+                    <label htmlFor="exampleFormControlName" className="form-label">
                       Name
                     </label>
                     <input type="text" className="form-control" name="name" required value={formDataRisk.name || ''} onChange={handleInputChange} placeholder="Type a name"/>
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="exampleFormControlCountry" className="form-label">
+                      Contry
+                    </label>
+                    <input type="text" className="form-control" name="country" required value={formDataRisk.country || ''} onChange={handleInputChange} placeholder="Type your country"/>
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="exampleFormControlImpact" className="form-label">
+                      Impact
+                    </label>
+                    <input type="text" className="form-control" name="impact" required value={formDataRisk.impact || ''} onChange={handleInputChange} placeholder="Type the impact"/>
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="exampleFormControlProbability" className="form-label">
+                      Probability
+                    </label>
+                    <input type="text" className="form-control" name="probability" required value={formDataRisk.probability || ''} onChange={handleInputChange} placeholder="Type the probability"/>
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="exampleFormControlLevel" className="form-label">
+                      Level
+                    </label>
+                    <input type="text" className="form-control" name="level" required value={formDataRisk.level || ''} onChange={handleInputChange} placeholder="Type the level"/>
                   </div>
                 </div>
                 <div className="modal-footer">

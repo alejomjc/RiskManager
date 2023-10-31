@@ -76,6 +76,22 @@ export const Risks = () => {
           header: 'User',
           accessorKey: 'user',
         },
+        {
+          header: 'Country',
+          accessorKey: 'country_info',
+        },
+        {
+          header: 'Impact',
+          accessorKey: 'impact',
+        },
+        {
+          header: 'Probability',
+          accessorKey: 'probability',
+        },
+        {
+          header: 'Level',
+          accessorKey: 'level',
+        },
       ],
       [],
     );

@@ -4,6 +4,7 @@ from bson import json_util
 from flask import Flask, request, jsonify, Response
 from flask_pymongo import PyMongo, ObjectId
 from flask_cors import CORS
+import requests
 
 app = Flask(__name__)
 app.config['MONGO_URI'] = 'mongodb://localhost:27017/risksmanagerdb'
@@ -60,7 +61,12 @@ def get_risks():
             '_id': str(ObjectId(risk['_id'])),
             'short_id': str(ObjectId(risk['_id']))[-6:],
             'name': risk['name'],
-            'user': risk['user']
+            'user': risk['user'],
+            'country': risk['country'],
+            'country_info': risk['country_info'],
+            'impact': risk['impact'],
+            'probability': risk['probability'],
+            'level': risk['level'],
         })
     return jsonify(risks)
 
@@ -73,12 +79,30 @@ def get_risk(id):
     return Response(response, mimetype="application/json")
 
 
+def get_country_data(request):
+    country_name = request.json['country']
+    response = requests.get(f'https://restcountries.com/v3/name/{country_name}')
+    country_data = response.json()
+    country_info = ''
+    if response.status_code == 200 and country_data:
+        country_info = '{0} {1}-{2}'.format(country_data[0]['cca2'],
+                                            country_data[0]['name']['common'],
+                                            country_data[0].get('capital', 'N/A')[0])
+
+    return country_info
+
+
 @app.route('/risk/create', methods=['POST'], endpoint='create_risk')
 @token_validation
 def create_risk():
     risk = db_risks.insert_one({
         'name': request.json['name'],
-        'user': request.user
+        'user': request.user,
+        'country': request.json['country'],
+        'country_info': get_country_data(request),
+        'impact': request.json['impact'],
+        'probability': request.json['probability'],
+        'level': request.json['level'],
     })
     return jsonify(str(ObjectId(risk.inserted_id)))
 
@@ -87,7 +111,12 @@ def create_risk():
 @token_validation
 def update_risk(id):
     db_risks.update_one({'_id': ObjectId(id)}, {'$set': {
-        'name': request.json['name']
+        'name': request.json['name'],
+        'country': request.json['country'],
+        'country_info': get_country_data(request),
+        'impact': request.json['impact'],
+        'probability': request.json['probability'],
+        'level': request.json['level'],
     }})
     return jsonify({'message': 'Risk updated sucessfully'})
 
