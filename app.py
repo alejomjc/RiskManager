@@ -4,11 +4,10 @@ from bson import json_util
 from flask import Flask, request, jsonify, Response
 from flask_pymongo import PyMongo, ObjectId
 from flask_cors import CORS
-import requests
+from utils import token_validation, SECRET_KEY, get_country_data
 
 app = Flask(__name__)
 app.config['MONGO_URI'] = 'mongodb://localhost:27017/risksmanagerdb'
-SECRET_KEY = '1bb*3%%a13*a1%322a2$2b2$b2*b$c'
 mongo = PyMongo(app)
 
 CORS(app)
@@ -16,27 +15,7 @@ db_risks = mongo.db.risks
 db_users = mongo.db.users
 
 
-def token_validation(func):
-    def wrapper(*args, **kwargs):
-        token = request.headers.get('Authorization')
-        if not token:
-            return jsonify({'message': 'Token Lost'}), 401
-
-        try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-        except jwt.ExpiredSignatureError:
-            return jsonify({'message': 'Expired Token'}), 401
-        except jwt.InvalidTokenError:
-            return jsonify({'message': 'Invalid Token'}), 401
-
-        username = payload.get('username')
-        request.user = username
-
-        return func(*args, **kwargs)
-
-    return wrapper
-
-
+# Start Token view
 @app.route('/get-token', methods=['POST'])
 def get_token():
     username = request.json.get('username')
@@ -50,27 +29,21 @@ def get_token():
     else:
         return jsonify({'message': 'Wrong username and password'}), 401
 
+# End Token view
+
 
 # Start Risks views
 @app.route('/risks', methods=['GET'], endpoint='get_risks')
 @token_validation
 def get_risks():
-    risks = []
-    for risk in db_risks.find():
-        risks.append({
-            '_id': str(ObjectId(risk['_id'])),
-            'short_id': str(ObjectId(risk['_id']))[-6:],
-            'name': risk['name'],
-            'description': risk['description'],
-            'user': risk['user'],
-            'provider': risk['provider'],
-            'country': risk['country'],
-            'country_info': risk['country_info'],
-            'impact': risk['impact'],
-            'probability': risk['probability'],
-            'level': risk['level'],
-        })
-    return jsonify(risks)
+    risks = list(db_risks.find())
+
+    for risk in risks:
+        risk['_id'] = str(risk['_id'])
+        risk['short_id'] = str(risk['_id'])[-6:]
+
+    response = json_util.dumps(risks)
+    return Response(response, mimetype="application/json")
 
 
 @app.route('/risk/<id>', methods=['GET'], endpoint='get_risk')
@@ -79,19 +52,6 @@ def get_risk(id):
     risk = db_risks.find_one({'_id': ObjectId(id)})
     response = json_util.dumps(risk)
     return Response(response, mimetype="application/json")
-
-
-def get_country_data(request):
-    country_name = request.json['country']
-    response = requests.get(f'https://restcountries.com/v3/name/{country_name}')
-    country_data = response.json()
-    country_info = ''
-    if response.status_code == 200 and country_data:
-        country_info = '{0} {1}-{2}'.format(country_data[0]['cca2'],
-                                            country_data[0]['name']['common'],
-                                            country_data[0].get('capital', 'N/A')[0])
-
-    return country_info
 
 
 @app.route('/risk/create', methods=['POST'], endpoint='create_risk')
@@ -108,7 +68,13 @@ def create_risk():
         'probability': request.json['probability'],
         'level': request.json['level'],
     })
-    return jsonify(str(ObjectId(risk.inserted_id)))
+
+    response_data = {
+        'risk_id': str(ObjectId(risk.inserted_id))
+    }
+    response = json_util.dumps(response_data)
+
+    return Response(response, mimetype="application/json")
 
 
 @app.route('/risk/<id>', methods=['PUT'], endpoint='update_risk')
@@ -124,14 +90,26 @@ def update_risk(id):
         'probability': request.json['probability'],
         'level': request.json['level'],
     }})
-    return jsonify({'message': 'Risk updated sucessfully'})
+
+    response_data = {
+        'message': 'Risk updated successfully'
+    }
+    response = json_util.dumps(response_data)
+
+    return Response(response, mimetype="application/json")
 
 
 @app.route('/risk/<id>', methods=['DELETE'], endpoint='delete_risk')
 @token_validation
 def delete_risk(id):
     db_risks.delete_one({'_id': ObjectId(id)})
-    return jsonify({'message': 'Risk deleted successfully'})
+
+    response_data = {
+        'message': 'Risk deleted successfully'
+    }
+    response = json_util.dumps(response_data)
+
+    return Response(response, mimetype="application/json")
 
 # End Risks views
 
@@ -140,20 +118,19 @@ def delete_risk(id):
 @app.route('/users', methods=['GET'], endpoint='get_users')
 @token_validation
 def get_users():
-    users = []
-    for user in db_users.find():
-        users.append({
-            '_id': str(ObjectId(user['_id'])),
-            'username': user['username'],
-            'password': '********'
-        })
-    return jsonify(users)
+    users = list(db_users.find({}, {'password': 0}))
+    for user in users:
+        user['_id'] = str(user['_id'])
+        user['password'] = '********'
+    response = json_util.dumps(users)
+    return Response(response, mimetype="application/json")
 
 
 @app.route('/user/<id>', methods=['GET'], endpoint='get_user')
 @token_validation
 def get_user(id):
-    user = db_users.find_one({'_id': ObjectId(id)})
+    user = db_users.find_one({'_id': ObjectId(id)}, {'password': 0})
+    user['_id'] = str(user['_id'])
     response = json_util.dumps(user)
     return Response(response, mimetype="application/json")
 
@@ -170,7 +147,11 @@ def create_user():
         'username': username,
         'password': hashed_password
     })
-    return jsonify(str(ObjectId(user.inserted_id)))
+    response_data = {
+        'user_id': str(ObjectId(user.inserted_id))
+    }
+    response = json_util.dumps(response_data)
+    return Response(response, mimetype="application/json")
 
 
 @app.route('/user/<id>', methods=['PUT'], endpoint='update_user')
@@ -185,14 +166,22 @@ def update_user(id):
         'username': username,
         'password': hashed_password
     }})
-    return jsonify({'message': 'User Updated successfully'})
+    response_data = {
+        'message': 'User updated successfully'
+    }
+    response = json_util.dumps(response_data)
+    return Response(response, mimetype="application/json")
 
 
 @app.route('/user/<id>', methods=['DELETE'], endpoint='delete_user')
 @token_validation
 def delete_user(id):
     db_users.delete_one({'_id': ObjectId(id)})
-    return jsonify({'message': 'User deleted'})
+    response_data = {
+        'message': 'User deleted successfully'
+    }
+    response = json_util.dumps(response_data)
+    return Response(response, mimetype="application/json")
 
 # End Users views
 
