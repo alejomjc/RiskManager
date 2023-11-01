@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useMemo} from 'react';
 import ModalUser from './Modal';
-import {getUsers, getUser, deleteUser} from './CRUD';
+import {getUsers, getUser, deleteUser} from './Common';
+import {MantineReactTable, useMantineReactTable} from "mantine-react-table";
+import {ActionIcon, Box} from "@mantine/core";
+import {IconEdit, IconTrash} from "@tabler/icons-react";
 
 
 
@@ -53,42 +56,62 @@ export const Users = () => {
         setIdUser('');
     };
 
+    const columns = useMemo(
+      () => [
+        {
+          header: 'Username',
+          accessorKey: 'username',
+        },
+        {
+          header: 'Password',
+          accessorKey: 'password',
+        },
+      ],
+      [],
+    );
+
+    const table = useMantineReactTable({
+        columns,
+        data: users,
+        enableColumnOrdering: true,
+        enableGlobalFilter: true,
+        enableRowActions: true,
+        renderRowActions: ({ row }) => (
+          <Box sx={{ display: 'flex', flexWrap: 'nowrap', gap: '8px' }}>
+            <ActionIcon
+              color="gray"
+              data-bs-toggle="modal"
+              data-bs-target="#userModal"
+              onClick={() => {
+                editLocalUser(row.original._id);
+              }}
+            >
+              <IconEdit />
+            </ActionIcon>
+            <ActionIcon
+              color="red"
+              onClick={() => {
+                deleteLocalUser(row.original._id)
+              }}
+            >
+              <IconTrash />
+            </ActionIcon>
+          </Box>
+        ),
+    });
+
     useEffect(() => {
         getLocalUsers();
     }, []);
 
     return (
         <>
-            <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#userModal" onClick={resetEditUser}>
+            <button type="button" className="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#userModal" onClick={resetEditUser}>
               Create User
             </button>
-            <table className="table table-striped" style={{width: "100%"}}>
-                <thead>
-                <tr>
-                    <th>Username</th>
-                    <th>Password</th>
-                    <th>Acciones</th>
-                </tr>
-                </thead>
-                <tbody>
-                    {users.map(user =>(
-                        <tr key={user._id}>
-                            <td>{user.username}</td>
-                            <td>{user.password}</td>
-                            <td className="p-0">
-                                <button type="button" className="btn btn-link p-0 m-1 text-decoration-none" data-bs-toggle="modal" data-bs-target="#userModal" onClick={() => editLocalUser(user._id)}>
-                                    <b>Edit</b>
-                                </button>
-                                <br></br>
-                                <button type="button" className="btn btn-link p-0 m-1 text-decoration-none" onClick={() => deleteLocalUser(user._id)}>
-                                    <b>Delete</b>
-                                </button>
-                            </td>
-                        </tr>
-                    ))}
-
-                </tbody>
-            </table>
+            <div className="mb-3">
+               <MantineReactTable table={table}/>
+            </div>
             <ModalUser getLocalUsers={getLocalUsers} formDataUser={formDataUser} setFormDataUser={setFormDataUser} clearFormDataUser={clearFormDataUser} idUser={idUser} editingUser={editingUser}/>
         </>
     )

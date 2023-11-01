@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useMemo} from 'react';
-import {getRisks, getRisk, deleteRisk} from './CRUD';
+import {getRisks, getRisk, deleteRisk} from './Common';
 import ModalRisk from "./Modal";
 
 import { MantineReactTable, useMantineReactTable } from 'mantine-react-table';
