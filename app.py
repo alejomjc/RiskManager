@@ -62,6 +62,7 @@ def get_risks():
             'short_id': str(ObjectId(risk['_id']))[-6:],
             'name': risk['name'],
             'user': risk['user'],
+            'provider': risk['provider'],
             'country': risk['country'],
             'country_info': risk['country_info'],
             'impact': risk['impact'],
@@ -98,6 +99,7 @@ def create_risk():
     risk = db_risks.insert_one({
         'name': request.json['name'],
         'user': request.user,
+        'provider': request.json['provider'],
         'country': request.json['country'],
         'country_info': get_country_data(request),
         'impact': request.json['impact'],
@@ -112,6 +114,7 @@ def create_risk():
 def update_risk(id):
     db_risks.update_one({'_id': ObjectId(id)}, {'$set': {
         'name': request.json['name'],
+        'provider': request.json['provider'],
         'country': request.json['country'],
         'country_info': get_country_data(request),
         'impact': request.json['impact'],

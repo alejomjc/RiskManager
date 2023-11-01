@@ -59,6 +59,12 @@ const ModalRisk = ({ getLocalRisks ,formDataRisk , setFormDataRisk, clearFormDat
                     <input type="text" className="form-control" name="name" required value={formDataRisk.name || ''} onChange={handleInputChange} placeholder="Type a name"/>
                   </div>
                   <div className="mb-3">
+                    <label htmlFor="exampleFormControlProvider" className="form-label">
+                      Provider
+                    </label>
+                    <input type="text" className="form-control" name="provider" required value={formDataRisk.provider || ''} onChange={handleInputChange} placeholder="Type a provider"/>
+                  </div>
+                  <div className="mb-3">
                     <label htmlFor="exampleFormControlCountry" className="form-label">
                       Contry
                     </label>
