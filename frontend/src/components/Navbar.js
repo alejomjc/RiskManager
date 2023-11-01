@@ -5,10 +5,7 @@ export const Navbar = () => (
     <nav className="navbar navbar-expand-lg bg-body-tertiary">
         <div className="container-fluid">
             <Link className="navbar-brand" to="/">
-                Risks
-            </Link>
-            <Link className="navbar-brand" to="/users">
-                Users
+                Home
             </Link>
             <button
                 className="navbar-toggler"
@@ -24,8 +21,11 @@ export const Navbar = () => (
             <div className="collapse navbar-collapse" id="navbarNav">
                 <ul className="navbar-nav">
                     <li className="nav-item">
-                        <Link className="nav-link active" aria-current="page" to="/about">
-                            About
+                        <Link className="navbar-brand" to="/">
+                            Risks
+                        </Link>
+                        <Link className="navbar-brand" to="/users">
+                            Users
                         </Link>
                     </li>
                 </ul>

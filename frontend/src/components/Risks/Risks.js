@@ -73,6 +73,10 @@ export const Risks = () => {
           accessorKey: 'name',
         },
         {
+          header: 'Description',
+          accessorKey: 'description',
+        },
+        {
           header: 'Provider',
           accessorKey: 'provider',
         },
