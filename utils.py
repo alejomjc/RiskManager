@@ -4,12 +4,22 @@ import requests
 
 SECRET_KEY = '1bb*3%%a13*a1%322a2$2b2$b2*b$c'
 
+session = {
+    'user': '',
+    'token': '',
+    'username': '',
+    'password': ''
+}
+
 
 def token_validation(func):
     def wrapper(*args, **kwargs):
         token = request.headers.get('Authorization')
         if not token:
-            return jsonify({'message': 'Token Lost'}), 401
+            if session['token']:
+                token = session['token']
+            else:
+                return jsonify({'message': 'Token Lost'}), 401
 
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
@@ -18,8 +28,7 @@ def token_validation(func):
         except jwt.InvalidTokenError:
             return jsonify({'message': 'Invalid Token'}), 401
 
-        username = payload.get('username')
-        request.user = username
+        session['username'] = payload.get('username')
 
         return func(*args, **kwargs)
 
@@ -28,7 +37,7 @@ def token_validation(func):
 
 def get_country_data(request):
     country_name = request.json['country']
-    response = requests.get(f'https://restcountries.com/v3/name/{country_name}')
+    response = requests.get(f'https://restcountries.com/v3/translation/{country_name}')
     country_data = response.json()
     country_info = ''
     if response.status_code == 200 and country_data:

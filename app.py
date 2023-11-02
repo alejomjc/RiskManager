@@ -4,7 +4,8 @@ from bson import json_util
 from flask import Flask, request, jsonify, Response
 from flask_pymongo import PyMongo, ObjectId
 from flask_cors import CORS
-from utils import token_validation, SECRET_KEY, get_country_data
+from utils import token_validation, SECRET_KEY, get_country_data, session
+from flasgger import Swagger, swag_from
 
 app = Flask(__name__)
 app.config['MONGO_URI'] = 'mongodb://localhost:27017/risksmanagerdb'
@@ -15,19 +16,56 @@ db_risks = mongo.db.risks
 db_users = mongo.db.users
 
 
+# Start Login and Logout view
+@app.route('/login', methods=['POST'], endpoint='login')
+def login():
+    username = request.json.get('username')
+    password = request.json.get('password')
+    user = db_users.find_one({'username': username})
+
+    if user and bcrypt.checkpw(password.encode('utf-8'), user['password']):
+        session['username'] = username
+        session['password'] = password
+        get_token()
+        return Response(json_util.dumps({'message': 'OK'}), mimetype="application/json")
+    else:
+        return Response(json_util.dumps({'message': 'Wrong username and password'}),
+                        mimetype="application/json",
+                        status=401)
+
+
+@app.route('/logout', methods=['POST'], endpoint='logout')
+def logout():
+    session['user'] = None
+    session['token'] = None
+    session['username'] = None
+    session['password'] = None
+
+    return Response(json_util.dumps({'message': 'OK'}), mimetype="application/json")
+
+# End Login view
+
+
 # Start Token view
 @app.route('/get-token', methods=['POST'])
 def get_token():
     username = request.json.get('username')
     password = request.json.get('password')
 
+    if not username:
+        username = session['username']
+        password = session['password']
+
     user = db_users.find_one({'username': username})
 
     if user and bcrypt.checkpw(password.encode('utf-8'), user['password']):
         token = jwt.encode({'username': username}, SECRET_KEY, algorithm='HS256')
-        return jsonify({'token': token})
+        session['token'] = token
+        return Response(json_util.dumps({'token': token}), mimetype="application/json")
     else:
-        return jsonify({'message': 'Wrong username and password'}), 401
+        return Response(json_util.dumps({'message': 'Wrong username and password'}),
+                        mimetype="application/json",
+                        status=401)
 
 # End Token view
 
@@ -60,7 +98,7 @@ def create_risk():
     risk = db_risks.insert_one({
         'name': request.json['name'],
         'description': request.json['description'],
-        'user': request.user,
+        'user': session['username'],
         'provider': request.json['provider'],
         'country': request.json['country'],
         'country_info': get_country_data(request),
@@ -83,6 +121,7 @@ def update_risk(id):
     db_risks.update_one({'_id': ObjectId(id)}, {'$set': {
         'name': request.json['name'],
         'description': request.json['description'],
+        'user': session['username'],
         'provider': request.json['provider'],
         'country': request.json['country'],
         'country_info': get_country_data(request),
