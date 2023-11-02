@@ -38,6 +38,7 @@ export const Navbar = () => {
                 >
                     <span className="navbar-toggler-icon"/>
                 </button>
+                {isAuthenticated ? (
                 <div className="collapse navbar-collapse" id="navbarNav">
                     <ul className="navbar-nav">
                         <li className="nav-item">
@@ -50,14 +51,15 @@ export const Navbar = () => {
                         </li>
                     </ul>
                 </div>
+                ) : (<></>)}
                 {isAuthenticated ? (
                      <Link className="navbar-brand" onClick={handleLogout} to="#">
-                        Logout
-                    </Link>
+                         <span style={{ fontSize: "0.6em" }}>Getout</span>
+                     </Link>
                 ) : (
-                    <Link className="navbar-brand" to="/login">
-                        Login
-                    </Link>
+                     <Link className="navbar-brand" to="/login">
+                        <span style={{ fontSize: "0.6em" }}>Login</span>
+                     </Link>
                 )}
             </div>
         </nav>
