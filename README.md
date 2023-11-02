@@ -13,7 +13,7 @@ This is a Flask project for managing risks. It includes both the backend API and
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/risks-manager.git
+git clone https://github.com/alejomjc/risks-manager.git
 ```
 
 2. Navigate to the project directory:
