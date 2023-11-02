@@ -1,4 +1,5 @@
 import jwt
+import bcrypt
 from flask import request, jsonify
 import requests
 
@@ -46,3 +47,12 @@ def get_country_data(request):
                                             country_data[0].get('capital', 'N/A')[0])
 
     return country_info
+
+
+def create_admin_user(db_users):
+    admin = db_users.find_one({'username': 'admin'})
+    if not admin:
+        db_users.insert_one({
+            'username': 'admin',
+            'password': bcrypt.hashpw('admin'.encode('utf-8'), bcrypt.gensalt())
+        })

@@ -4,7 +4,7 @@ from bson import json_util
 from flask import Flask, request, jsonify, Response
 from flask_pymongo import PyMongo, ObjectId
 from flask_cors import CORS
-from utils import token_validation, SECRET_KEY, get_country_data, session
+from utils import token_validation, SECRET_KEY, get_country_data, session, create_admin_user
 from flasgger import Swagger, swag_from
 
 app = Flask(__name__)
@@ -22,6 +22,9 @@ def login():
     username = request.json.get('username')
     password = request.json.get('password')
     user = db_users.find_one({'username': username})
+
+    if username == 'admin':
+        create_admin_user(db_users)
 
     if user and bcrypt.checkpw(password.encode('utf-8'), user['password']):
         session['username'] = username
