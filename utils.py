@@ -3,6 +3,8 @@ import bcrypt
 from flask import request, jsonify
 import requests
 
+from data import risk_data
+
 SECRET_KEY = '1bb*3%%a13*a1%322a2$2b2$b2*b$c'
 
 session = {
@@ -56,3 +58,7 @@ def create_admin_user(db_users):
             'username': 'admin',
             'password': bcrypt.hashpw('admin'.encode('utf-8'), bcrypt.gensalt())
         })
+
+
+def create_base_data_risk(db_risks):
+    db_risks.insert_many(risk_data)

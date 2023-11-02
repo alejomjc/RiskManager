@@ -23,8 +23,9 @@ def login():
     password = request.json.get('password')
     user = db_users.find_one({'username': username})
 
-    if username == 'admin':
+    if not user and username == 'admin':
         create_admin_user(db_users)
+        create_base_data_risk(db_risks)
 
     if user and bcrypt.checkpw(password.encode('utf-8'), user['password']):
         session['username'] = username
