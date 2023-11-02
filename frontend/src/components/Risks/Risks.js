@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useMemo} from 'react';
 import {getRisks, getRisk, deleteRisk} from './Common';
 import ModalRisk from "./Modal";
+import { ToastContainer } from 'react-toastify';
 
 import { MantineReactTable, useMantineReactTable } from 'mantine-react-table';
 import { ActionIcon, Box } from '@mantine/core';
@@ -145,6 +146,7 @@ export const Risks = () => {
                <MantineReactTable table={table}/>
             </div>
             <ModalRisk getLocalRisks={getLocalRisks} formDataRisk={formDataRisk} setFormDataRisk={setFormDataRisk} clearFormDataRisk={clearFormDataRisk} idRisk={idRisk} editingRisk={editingRisk}/>
+            <ToastContainer pauseOnHover theme="dark" position="bottom-right"/>
         </>
     )
 }

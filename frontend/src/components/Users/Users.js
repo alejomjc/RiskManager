@@ -4,6 +4,7 @@ import {getUsers, getUser, deleteUser} from './Common';
 import {MantineReactTable, useMantineReactTable} from "mantine-react-table";
 import {ActionIcon, Box} from "@mantine/core";
 import {IconEdit, IconTrash} from "@tabler/icons-react";
+import { ToastContainer } from 'react-toastify';
 
 
 
@@ -113,6 +114,7 @@ export const Users = () => {
                <MantineReactTable table={table}/>
             </div>
             <ModalUser getLocalUsers={getLocalUsers} formDataUser={formDataUser} setFormDataUser={setFormDataUser} clearFormDataUser={clearFormDataUser} idUser={idUser} editingUser={editingUser}/>
+            <ToastContainer pauseOnHover theme="dark" position="bottom-right"/>
         </>
     )
 }

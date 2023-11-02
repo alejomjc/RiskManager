@@ -1,3 +1,5 @@
+import {toast} from "react-toastify";
+
 const API = process.env.REACT_APP_API
 
 
@@ -17,6 +19,12 @@ export const deleteUser = async (e) => {
         const res = await fetch(`${API}/user/${e}`, {
             method: 'DELETE'
         })
-        return await res.json();
+        const data = await res.json();
+        if (res.status === 200) {
+            toast.success(data.message);
+        } else {
+            toast.error(data.message);
+        }
+        return data;
     }
 }

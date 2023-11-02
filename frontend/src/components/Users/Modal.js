@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import {toast} from "react-toastify";
 
 const API = process.env.REACT_APP_API
 
@@ -19,6 +20,12 @@ const ModalUser = ({ getLocalUsers ,formDataUser , setFormDataUser, clearFormDat
         },
         body: JSON.stringify(formDataUser)
       })
+      const data = await res.json();
+      if (res.status === 200) {
+          toast.success(data.message);
+      } else {
+          toast.error(data.message);
+      }
     } else {
       const res = await fetch(`${API}/user/${idUser}`, {
         method: 'PUT',
@@ -27,6 +34,12 @@ const ModalUser = ({ getLocalUsers ,formDataUser , setFormDataUser, clearFormDat
         },
         body: JSON.stringify(formDataUser)
       })
+      const data = await res.json();
+      if (res.status === 200) {
+          toast.success(data.message);
+      } else {
+          toast.error(data.message);
+      }
     }
     document.getElementById('btn-close').click();
     clearFormDataUser();

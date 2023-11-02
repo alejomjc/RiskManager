@@ -111,7 +111,8 @@ def create_risk():
     })
 
     response_data = {
-        'risk_id': str(ObjectId(risk.inserted_id))
+        'risk_id': str(ObjectId(risk.inserted_id)),
+        'message': 'Risk created successfully'
     }
     response = json_util.dumps(response_data)
 
@@ -190,7 +191,8 @@ def create_user():
         'password': hashed_password
     })
     response_data = {
-        'user_id': str(ObjectId(user.inserted_id))
+        'user_id': str(ObjectId(user.inserted_id)),
+        'message': 'User created successfully'
     }
     response = json_util.dumps(response_data)
     return Response(response, mimetype="application/json")
