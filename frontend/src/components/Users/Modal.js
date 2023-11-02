@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 
 const API = process.env.REACT_APP_API
-// const TOKEN = process.env.TOKEN_AUTH_JWT
-const TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzdWFyaW8ifQ.PuRbZekcfxsKPo92zbIXFQD04N8HHk6ZDoRGvTxjOEs'
 
 const ModalUser = ({ getLocalUsers ,formDataUser , setFormDataUser, clearFormDataUser, idUser, editingUser}) => {
 
@@ -17,8 +15,7 @@ const ModalUser = ({ getLocalUsers ,formDataUser , setFormDataUser, clearFormDat
       const res = await fetch(`${API}/user/create`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': TOKEN
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(formDataUser)
       })
@@ -26,8 +23,7 @@ const ModalUser = ({ getLocalUsers ,formDataUser , setFormDataUser, clearFormDat
       const res = await fetch(`${API}/user/${idUser}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': TOKEN
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(formDataUser)
       })

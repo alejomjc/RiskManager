@@ -7,8 +7,6 @@ import { ActionIcon, Box } from '@mantine/core';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 
 const API = process.env.REACT_APP_API;
-// const TOKEN = process.env.TOKEN_AUTH_JWT
-const TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzdWFyaW8ifQ.PuRbZekcfxsKPo92zbIXFQD04N8HHk6ZDoRGvTxjOEs'
 
 
 
