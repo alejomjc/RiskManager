@@ -92,8 +92,12 @@ def get_risks():
 @token_validation
 def get_risk(id):
     risk = db_risks.find_one({'_id': ObjectId(id)})
-    response = json_util.dumps(risk)
-    return Response(response, mimetype="application/json")
+    if risk:
+        response = json_util.dumps(risk)
+        return Response(response, mimetype="application/json")
+    else:
+        response = {'message': 'Risk not found'}
+        return Response(response, mimetype="application/json", status=404)
 
 
 @app.route('/risk/create', methods=['POST'], endpoint='create_risk')
@@ -174,9 +178,13 @@ def get_users():
 @token_validation
 def get_user(id):
     user = db_users.find_one({'_id': ObjectId(id)}, {'password': 0})
-    user['_id'] = str(user['_id'])
-    response = json_util.dumps(user)
-    return Response(response, mimetype="application/json")
+    if user:
+        user['_id'] = str(user['_id'])
+        response = json_util.dumps(user)
+        return Response(response, mimetype="application/json")
+    else:
+        response = {'message': 'User not found'}
+        return Response(response, mimetype="application/json", status=404)
 
 
 @app.route('/user/create', methods=['POST'], endpoint='create_user')

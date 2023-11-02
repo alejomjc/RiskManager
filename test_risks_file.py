@@ -68,7 +68,11 @@ class FlaskTest(unittest.TestCase):
         response = self.app.get(f'/risk/{FlaskTest.created_risk_id}')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(json.loads(response.data)['name'], data['name'])
+        self.assertEqual(json.loads(response.data)['description'], data['description'])
+        self.assertEqual(json.loads(response.data)['user'], data['user'])
+        self.assertEqual(json.loads(response.data)['provider'], data['provider'])
         self.assertEqual(json.loads(response.data)['country'], data['country'])
+        self.assertEqual(json.loads(response.data)['country_info'], data['country_info'])
         self.assertEqual(json.loads(response.data)['impact'], data['impact'])
         self.assertEqual(json.loads(response.data)['probability'], data['probability'])
         self.assertEqual(json.loads(response.data)['level'], data['level'])
@@ -79,8 +83,7 @@ class FlaskTest(unittest.TestCase):
         self.assertEqual(response.content_type, 'application/json')
 
         response = self.app.get(f'/risk/{FlaskTest.created_risk_id}')
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(json.loads(response.data), None)
+        self.assertEqual(response.status_code, 404)
 
     def test_6_logout(self):
         response = self.app.post('/logout', content_type='application/json')
