@@ -1,0 +1,26 @@
+security:
+  - JWT: [ ]
+parameters:
+  - in: header
+    name: Authorization
+    type: string
+    required: true
+  - name: id
+    in: path
+    required: true
+    type: string
+responses:
+  200:
+    description: "Risk deleted successfully"
+    schema:
+      type: object
+  401:
+    description: "Token lost"
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+
+tags:
+  - "Risks"

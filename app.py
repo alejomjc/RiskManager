@@ -1,13 +1,14 @@
 import bcrypt
 import jwt
 from bson import json_util
-from flask import Flask, request, jsonify, Response
+from flask import Flask, request, Response
 from flask_pymongo import PyMongo, ObjectId
 from flask_cors import CORS
-from utils import token_validation, SECRET_KEY, get_country_data, session, create_admin_user
+from utils import token_validation, SECRET_KEY, get_country_data, session, create_admin_user, create_base_data_risk
 from flasgger import Swagger, swag_from
 
 app = Flask(__name__)
+swagger = Swagger(app)
 app.config['MONGO_URI'] = 'mongodb://localhost:27017/risksmanagerdb'
 mongo = PyMongo(app)
 
@@ -52,6 +53,7 @@ def logout():
 
 # Start Token view
 @app.route('/get-token', methods=['POST'])
+@swag_from('swagger_config/get_token.yml')
 def get_token():
     username = request.json.get('username')
     password = request.json.get('password')
@@ -76,6 +78,7 @@ def get_token():
 
 # Start Risks views
 @app.route('/risks', methods=['GET'], endpoint='get_risks')
+@swag_from('swagger_config/risks/get_risks.yml')
 @token_validation
 def get_risks():
     risks = list(db_risks.find())
@@ -89,6 +92,7 @@ def get_risks():
 
 
 @app.route('/risk/<id>', methods=['GET'], endpoint='get_risk')
+@swag_from('swagger_config/risks/get_risk.yml')
 @token_validation
 def get_risk(id):
     risk = db_risks.find_one({'_id': ObjectId(id)})
@@ -101,6 +105,7 @@ def get_risk(id):
 
 
 @app.route('/risk/create', methods=['POST'], endpoint='create_risk')
+@swag_from('swagger_config/risks/create_risk.yml')
 @token_validation
 def create_risk():
     risk = db_risks.insert_one({
@@ -125,6 +130,7 @@ def create_risk():
 
 
 @app.route('/risk/<id>', methods=['PUT'], endpoint='update_risk')
+@swag_from('swagger_config/risks/update_risk.yml')
 @token_validation
 def update_risk(id):
     db_risks.update_one({'_id': ObjectId(id)}, {'$set': {
@@ -148,6 +154,7 @@ def update_risk(id):
 
 
 @app.route('/risk/<id>', methods=['DELETE'], endpoint='delete_risk')
+@swag_from('swagger_config/risks/delete_risk.yml')
 @token_validation
 def delete_risk(id):
     db_risks.delete_one({'_id': ObjectId(id)})
@@ -164,6 +171,7 @@ def delete_risk(id):
 
 # Start Users views
 @app.route('/users', methods=['GET'], endpoint='get_users')
+@swag_from('swagger_config/users/get_users.yml')
 @token_validation
 def get_users():
     users = list(db_users.find({}, {'password': 0}))
@@ -175,6 +183,7 @@ def get_users():
 
 
 @app.route('/user/<id>', methods=['GET'], endpoint='get_user')
+@swag_from('swagger_config/users/get_user.yml')
 @token_validation
 def get_user(id):
     user = db_users.find_one({'_id': ObjectId(id)}, {'password': 0})
@@ -188,6 +197,7 @@ def get_user(id):
 
 
 @app.route('/user/create', methods=['POST'], endpoint='create_user')
+@swag_from('swagger_config/users/create_user.yml')
 @token_validation
 def create_user():
     username = request.json['username']
@@ -208,6 +218,7 @@ def create_user():
 
 
 @app.route('/user/<id>', methods=['PUT'], endpoint='update_user')
+@swag_from('swagger_config/users/update_user.yml')
 @token_validation
 def update_user(id):
     username = request.json['username']
@@ -227,6 +238,7 @@ def update_user(id):
 
 
 @app.route('/user/<id>', methods=['DELETE'], endpoint='delete_user')
+@swag_from('swagger_config/users/delete_user.yml')
 @token_validation
 def delete_user(id):
     db_users.delete_one({'_id': ObjectId(id)})

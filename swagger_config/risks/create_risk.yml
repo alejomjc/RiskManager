@@ -1,0 +1,43 @@
+security:
+  - JWT: [ ]
+parameters:
+  - name: Authorization
+    in: header
+    required: true
+    type: string
+  - name: risk_data
+    in: body
+    description: "Data for create risk"
+    required: true
+    schema:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        provider:
+          type: string
+        country:
+          type: string
+        impact:
+          type: string
+        probability:
+          type: string
+        level:
+          type: string
+responses:
+  200:
+    description: "Risk created successfully"
+    schema:
+      type: object
+  401:
+    description: "Token lost"
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+
+tags:
+  - "Risks"

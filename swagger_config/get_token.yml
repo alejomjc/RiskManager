@@ -1,0 +1,33 @@
+parameters:
+  - in: body
+    name: body
+    schema:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - password
+    required: true
+    description: Credentials for user session
+
+responses:
+  200:
+    description: Lista de riesgos
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              key1:
+                type: string
+              key2:
+                type: integer
+
+tags:
+  - "Token"

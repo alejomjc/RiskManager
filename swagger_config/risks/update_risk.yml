@@ -1,0 +1,47 @@
+security:
+  - JWT: [ ]
+parameters:
+  - in: header
+    name: Authorization
+    type: string
+    required: true
+  - name: id
+    in: path
+    required: true
+    type: string
+  - name: risk_data
+    in: body
+    description: "Data of risk to update"
+    required: true
+    schema:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        provider:
+          type: string
+        country:
+          type: string
+        impact:
+          type: string
+        probability:
+          type: string
+        level:
+          type: string
+responses:
+  200:
+    description: "Risk updated successfully"
+    schema:
+      type: object
+  401:
+    description: "Token lost"
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+
+tags:
+  - "Risks"

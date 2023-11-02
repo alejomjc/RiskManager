@@ -1,0 +1,26 @@
+security:
+  - JWT: [ ]
+parameters:
+  - in: header
+    name: Authorization
+    type: string
+    required: true
+  - name: id
+    in: path
+    required: true
+    type: string
+responses:
+  200:
+    description: "User got successfully"
+    schema:
+      type: object
+  404:
+    description: "User don't found"
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+
+tags:
+  - "Users"

@@ -1,0 +1,37 @@
+security:
+  - JWT: [ ]
+parameters:
+  - in: header
+    name: Authorization
+    type: string
+    required: true
+  - name: id
+    in: path
+    required: true
+    type: string
+  - name: user_data
+    in: body
+    description: "Data of user to update"
+    required: true
+    schema:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+responses:
+  200:
+    description: "User updated successfully"
+    schema:
+      type: object
+  401:
+    description: "Token lost"
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+
+tags:
+  - "Users"
